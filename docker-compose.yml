@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  summarization-app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - USE_GPU=False
+      - FLASK_ENV=production
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    restart: unless-stopped
