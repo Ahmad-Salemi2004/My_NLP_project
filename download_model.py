@@ -1,22 +1,21 @@
+from transformers import BartForConditionalGeneration, BartTokenizer
 import os
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-def download_pretrained_model():
-    """Download base model if fine-tuned model doesn't exist."""
-    model_path = "./models/fine_tuned_bart"
+def download_and_save_model():
+    # Create models directory if it doesn't exist
+    os.makedirs("models/fine_tuned_bart", exist_ok=True)
     
-    if not os.path.exists(model_path):
-        print("Downloading base BART model...")
-        os.makedirs(model_path, exist_ok=True)
-        
-        tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
-        model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
-        
-        tokenizer.save_pretrained(model_path)
-        model.save_pretrained(model_path)
-        print(f"Base model saved to {model_path}")
-    else:
-        print("Model already exists.")
+    # Load pre-trained model and tokenizer
+    print("Downloading BART model and tokenizer...")
+    model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
+    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
+    
+    # Save to models directory
+    print("Saving model to models/fine_tuned_bart/...")
+    model.save_pretrained("models/fine_tuned_bart")
+    tokenizer.save_pretrained("models/fine_tuned_bart")
+    
+    print("Model download complete!")
 
 if __name__ == "__main__":
-    download_pretrained_model()
+    download_and_save_model()
