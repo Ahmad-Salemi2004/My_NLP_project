@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 import argparse
@@ -64,48 +65,19 @@ def check_disk_space(required_mb=2000):
         logger.warning("WARNING: Could not check disk space, continuing anyway...")
         return True
 
-def create_progress_callback():
-    """Create a simple progress tracker"""
-    start_time = time.time()
-    last_update = start_time
-    
-    def update_progress(current, total):
-        nonlocal last_update
-        current_time = time.time()
-        
-        # Update every 2 seconds or when done
-        if current_time - last_update >= 2 or current == total:
-            progress = (current / total) * 100
-            elapsed = current_time - start_time
-            
-            # Estimate remaining time
-            if current > 0 and elapsed > 0:
-                speed = current / elapsed / (1024 * 1024)  # MB/s
-                remaining = (total - current) / (current / elapsed) if current > 0 else 0
-                
-                print(f"\rDownloading: {progress:.1f}% | "
-                      f"{current/(1024*1024):.1f}/{total/(1024*1024):.1f} MB | "
-                      f"Speed: {speed:.1f} MB/s | "
-                      f"ETA: {remaining:.0f}s", end='', flush=True)
-            
-            last_update = current_time
-        
-        if current == total:
-            print()  # New line when complete
-    
-    return update_progress
-
 def download_model_with_progress(model_name, save_path, force=False):
     """Download model with progress tracking"""
     from transformers import BartForConditionalGeneration, BartTokenizer
     
     # Check if model already exists
     if os.path.exists(save_path) and not force:
-        required_files = ["config.json", "pytorch_model.bin"]
-        existing_files = all(os.path.exists(os.path.join(save_path, f)) 
-                           for f in required_files)
+        # Check for essential model files
+        model_files = ["config.json", "pytorch_model.bin"]
+        tokenizer_files = ["tokenizer_config.json", "vocab.json", "merges.txt"]
         
-        if existing_files:
+        essential_files_exist = any(os.path.exists(os.path.join(save_path, f)) for f in model_files)
+        
+        if essential_files_exist:
             logger.info(f"SUCCESS: Model already exists at: {save_path}")
             logger.info("  Use --force to re-download")
             
@@ -118,6 +90,7 @@ def download_model_with_progress(model_name, save_path, force=False):
                 logger.info("Loading existing model...")
                 model = BartForConditionalGeneration.from_pretrained(save_path)
                 tokenizer = BartTokenizer.from_pretrained(save_path)
+                logger.info("SUCCESS: Existing model loaded successfully")
                 return model, tokenizer
             except Exception as e:
                 logger.warning(f"Failed to load existing model: {e}")
@@ -128,59 +101,84 @@ def download_model_with_progress(model_name, save_path, force=False):
     logger.info(f"Downloading to: {save_path}")
     
     try:
-        # Try to use the built-in progress tracking if available
         logger.info("Starting download... (this may take 5-15 minutes)")
         
-        # Method 1: Try with resume_download and progress tracking
-        model = BartForConditionalGeneration.from_pretrained(
-            model_name,
-            resume_download=True,
-            force_download=force
-        )
+        # Download with progress indication
+        print("Downloading model files...")
         
-        tokenizer = BartTokenizer.from_pretrained(
-            model_name,
-            resume_download=True,
-            force_download=force
-        )
+        # Method 1: Try with resume_download
+        try:
+            model = BartForConditionalGeneration.from_pretrained(
+                model_name,
+                resume_download=True,
+                force_download=force
+            )
+            
+            tokenizer = BartTokenizer.from_pretrained(
+                model_name,
+                resume_download=True,
+                force_download=force
+            )
+            
+            logger.info("SUCCESS: Model downloaded from Hugging Face Hub")
+            
+        except Exception as e:
+            logger.warning(f"Standard download failed: {e}")
+            logger.info("Trying alternative method...")
+            
+            # Method 2: Try with huggingface_hub
+            try:
+                from huggingface_hub import snapshot_download
+                
+                print("Downloading model files (this may take a while)...")
+                snapshot_download(
+                    repo_id=model_name,
+                    local_dir=save_path,
+                    local_dir_use_symlinks=False,
+                    resume_download=True,
+                    ignore_patterns=["*.msgpack", "*.h5", "*.ot"]
+                )
+                
+                # Load from local directory
+                model = BartForConditionalGeneration.from_pretrained(save_path)
+                tokenizer = BartTokenizer.from_pretrained(save_path)
+                
+                logger.info("SUCCESS: Model downloaded using huggingface_hub")
+                
+            except Exception as e2:
+                logger.error(f"Alternative download failed: {e2}")
+                raise
         
         # Save locally
-        logger.info("Saving model locally...")
+        logger.info("Saving model locally for future use...")
         model.save_pretrained(save_path)
         tokenizer.save_pretrained(save_path)
         
+        logger.info(f"SUCCESS: Model saved to {save_path}")
         return model, tokenizer
         
     except Exception as e:
         logger.error(f"Download failed: {e}")
         
-        # Try alternative approach
-        logger.info("Trying alternative download method...")
-        try:
-            # Simpler approach without progress tracking
-            from huggingface_hub import snapshot_download
-            
-            snapshot_download(
-                repo_id=model_name,
-                local_dir=save_path,
-                resume_download=True
-            )
-            
-            # Load from local
-            model = BartForConditionalGeneration.from_pretrained(save_path)
-            tokenizer = BartTokenizer.from_pretrained(save_path)
-            
-            return model, tokenizer
-            
-        except Exception as e2:
-            logger.error(f"Alternative download also failed: {e2}")
-            return None, None
+        # Clean up partial downloads
+        if os.path.exists(save_path):
+            try:
+                import shutil
+                shutil.rmtree(save_path)
+                logger.info("Cleaned up partial download")
+            except:
+                pass
+        
+        return None, None
 
 def verify_model(model, tokenizer):
     """Verify the downloaded model works correctly"""
     logger.info("Verifying model...")
     
     try:
+        # Import torch for verification
+        import torch
+        
         # Simple test
         test_text = "The quick brown fox jumps over the lazy dog. This is a simple test to verify the model works correctly."
         
@@ -208,6 +206,9 @@ def verify_model(model, tokenizer):
         
         return True
         
+    except ImportError:
+        logger.error("ERROR: Torch not available for verification")
+        return False
     except Exception as e:
         logger.error(f"Model verification failed: {e}")
         return False
