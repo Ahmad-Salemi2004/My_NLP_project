@@ -11,6 +11,7 @@ This directory contains the fine-tuned BART model for text summarization.
 
 ## File Structure
 models/
+
 ├── fine_tuned_bart/ # Fine-tuned model files
 
 │ ├── config.json # Model configuration
