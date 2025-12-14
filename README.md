@@ -74,5 +74,3 @@ jupyter notebook notebooks/text_summarization_finetuning.ipynb
 . Batch Size: 8
 
 . Sequence Length: 128 tokens
-
-## Performance
