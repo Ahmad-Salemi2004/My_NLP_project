@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarization with AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> AI Text Summarizer</h1>
+            <p>Fine-tuned BART model for intelligent text summarization</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <h2><i class="fas fa-keyboard"></i> Input Text</h2>
+                <textarea id="inputText" placeholder="Paste or type your text here (minimum 50 words)..."></textarea>
+                <div class="word-count" id="wordCount">Words: 0</div>
+                
+                <div class="controls">
+                    <button id="summarizeBtn" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> Generate Summary
+                    </button>
+                    <button id="clearBtn" class="btn btn-secondary">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your text...</p>
+                </div>
+                
+                <div class="error" id="error"></div>
+            </div>
+            
+            <div class="output-section">
+                <h2><i class="fas fa-file-alt"></i> AI Summary</h2>
+                <div class="output-box" id="outputText">
+                    Your summary will appear here...
+                </div>
+                <div class="instructions">
+                    <p><strong>Instructions:</strong></p>
+                    <ul>
+                        <li>Enter at least 50 words for best results</li>
+                        <li>Supported: Articles, documents, reports, dialogues</li>
+                        <li>Processing time: 2-5 seconds</li>
+                        <li>Model: Fine-tuned BART-large-cnn</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Text Summarization Project | NLP Course | University Project</p>
+            <p>Powered by Transformers & Flask</p>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
