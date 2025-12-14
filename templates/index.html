@@ -3,63 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Summarization with AI</title>
+    <title>AI Text Summarizer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-robot"></i> AI Text Summarizer</h1>
-            <p>Fine-tuned BART model for intelligent text summarization</p>
-        </div>
-        
-        <div class="content">
-            <div class="input-section">
-                <h2><i class="fas fa-keyboard"></i> Input Text</h2>
-                <textarea id="inputText" placeholder="Paste or type your text here (minimum 50 words)..."></textarea>
-                <div class="word-count" id="wordCount">Words: 0</div>
-                
-                <div class="controls">
-                    <button id="summarizeBtn" class="btn btn-primary">
-                        <i class="fas fa-magic"></i> Generate Summary
-                    </button>
-                    <button id="clearBtn" class="btn btn-secondary">
-                        <i class="fas fa-trash"></i> Clear All
-                    </button>
-                </div>
-                
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Processing your text...</p>
-                </div>
-                
-                <div class="error" id="error"></div>
-            </div>
-            
-            <div class="output-section">
-                <h2><i class="fas fa-file-alt"></i> AI Summary</h2>
-                <div class="output-box" id="outputText">
-                    Your summary will appear here...
-                </div>
-                <div class="instructions">
-                    <p><strong>Instructions:</strong></p>
-                    <ul>
-                        <li>Enter at least 50 words for best results</li>
-                        <li>Supported: Articles, documents, reports, dialogues</li>
-                        <li>Processing time: 2-5 seconds</li>
-                        <li>Model: Fine-tuned BART-large-cnn</li>
-                    </ul>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-robot"></i> AI Text Summarizer</h1>
+                <p class="subtitle">Transform lengthy texts into concise summaries using fine-tuned BART model</p>
+                <div class="model-info">
+                    <span class="tag"><i class="fas fa-microchip"></i> BART-large-cnn</span>
+                    <span class="tag"><i class="fas fa-graduation-cap"></i> Fine-tuned on DialogSum</span>
+                    <span class="tag"><i class="fas fa-bolt"></i> AI-Powered</span>
                 </div>
             </div>
-        </div>
-        
-        <div class="footer">
-            <p>Text Summarization Project | NLP Course | University Project</p>
-            <p>Powered by Transformers & Flask</p>
-        </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- Input Section -->
+                <section class="input-section card">
+                    <h2><i class="fas fa-keyboard"></i> Input Text</h2>
+                    <div class="textarea-container">
+                        <textarea id="inputText" placeholder="Paste or type your text here (minimum 30 words)... 
+Example: 'Text summarization is the process of creating a shorter version of a longer text while preserving the key information and meaning. This is useful for quickly understanding long documents, articles, or reports...'"></textarea>
+                        <div class="textarea-footer">
+                            <div class="word-count" id="wordCount">
+                                <i class="fas fa-font"></i> Words: <span>0</span>
+                            </div>
+                            <div class="char-count" id="charCount">
+                                <i class="fas fa-text-height"></i> Characters: <span>0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button id="summarizeBtn" class="btn btn-primary">
+                            <i class="fas fa-magic"></i> Generate Summary
+                        </button>
+                        <button id="clearBtn" class="btn btn-secondary">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                        <button id="exampleBtn" class="btn btn-outline">
+                            <i class="fas fa-lightbulb"></i> Load Example
+                        </button>
+                    </div>
+                    
+                    <div class="requirements">
+                        <h3><i class="fas fa-info-circle"></i> Requirements:</h3>
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> Minimum 30 words</li>
+                            <li><i class="fas fa-check-circle"></i> Maximum 2000 words</li>
+                            <li><i class="fas fa-check-circle"></i> Works best with articles, reports, dialogues</li>
+                            <li><i class="fas fa-check-circle"></i> Processing time: 2-5 seconds</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Output Section -->
+                <section class="output-section card">
+                    <div class="output-header">
+                        <h2><i class="fas fa-file-alt"></i> AI Generated Summary</h2>
+                        <div class="summary-stats" id="summaryStats" style="display: none;">
+                            <span class="stat"><i class="fas fa-compress"></i> Compression: <span id="compressionRatio">0</span>x</span>
+                            <span class="stat"><i class="fas fa-percentage"></i> Reduced by: <span id="reductionPercent">0</span>%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="output-container">
+                        <div class="output-placeholder" id="outputPlaceholder">
+                            <i class="fas fa-sparkles"></i>
+                            <p>Your AI-generated summary will appear here...</p>
+                            <small>Enter text and click "Generate Summary" to begin</small>
+                        </div>
+                        <div class="output-content" id="outputContent" style="display: none;">
+                            <div class="summary-text" id="outputText"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div class="loading-state" id="loadingState">
+                        <div class="spinner"></div>
+                        <p>AI is analyzing your text...</p>
+                        <small>This may take a few seconds</small>
+                    </div>
+                    
+                    <!-- Error State -->
+                    <div class="error-state" id="errorState">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p id="errorMessage">Error message will appear here</p>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="output-actions" id="outputActions" style="display: none;">
+                        <button id="copyBtn" class="btn btn-success">
+                            <i class="fas fa-copy"></i> Copy Summary
+                        </button>
+                        <button id="downloadBtn" class="btn btn-outline">
+                            <i class="fas fa-download"></i> Download as TXT
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3><i class="fas fa-project-diagram"></i> Text Summarization Project</h3>
+                    <p>NLP Course Project • Fine-tuned BART Model • Flask Web Application</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/health" target="_blank" class="footer-link">
+                        <i class="fas fa-heartbeat"></i> API Health
+                    </a>
+                    <a href="/api/info" target="_blank" class="footer-link">
+                        <i class="fas fa-code"></i> API Docs
+                    </a>
+                    <div class="footer-status">
+                        <span class="status-indicator" id="statusIndicator"></span>
+                        <span id="statusText">Checking system status...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Text Summarization Project • Built with Flask & Transformers</p>
+            </div>
+        </footer>
     </div>
-    
+
+    <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
