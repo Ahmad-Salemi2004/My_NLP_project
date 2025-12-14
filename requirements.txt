@@ -1,0 +1,11 @@
+Flask==2.3.2
+torch==2.0.1
+transformers==4.30.2
+datasets==2.13.1
+numpy==1.24.3
+nltk==3.8.1
+sentencepiece==0.1.99
+evaluate==0.4.0
+rouge_score==0.1.2
+accelerate==0.21.0
+gunicorn==20.1.0
