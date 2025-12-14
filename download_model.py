@@ -1,21 +1,21 @@
 from transformers import BartForConditionalGeneration, BartTokenizer
 import os
 
-def download_and_save_model():
-    # Create models directory if it doesn't exist
-    os.makedirs("models/fine_tuned_bart", exist_ok=True)
+def download_and_setup_model():
+    print("Downloading BART-large-cnn model and tokenizer...")
     
-    # Load pre-trained model and tokenizer
-    print("Downloading BART model and tokenizer...")
-    model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
-    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
+    # Load model and tokenizer directly from Hugging Face
+    model_name = "facebook/bart-large-cnn"
+    model = BartForConditionalGeneration.from_pretrained(model_name)
+    tokenizer = BartTokenizer.from_pretrained(model_name)
     
-    # Save to models directory
-    print("Saving model to models/fine_tuned_bart/...")
-    model.save_pretrained("models/fine_tuned_bart")
-    tokenizer.save_pretrained("models/fine_tuned_bart")
+    # Save them to your local 'models' directory
+    save_path = "./models/fine_tuned_bart"
+    os.makedirs(save_path, exist_ok=True)
+    model.save_pretrained(save_path)
+    tokenizer.save_pretrained(save_path)
     
-    print("Model download complete!")
+    print(f"Model and tokenizer saved to '{save_path}'")
 
 if __name__ == "__main__":
-    download_and_save_model()
+    download_and_setup_model()
