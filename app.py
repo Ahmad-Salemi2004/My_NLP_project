@@ -2,6 +2,16 @@ from flask import Flask, render_template, request, jsonify
 from transformers import pipeline
 import torch
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Configuration
+USE_GPU = os.getenv('USE_GPU', 'True').lower() == 'true'
+MODEL_PATH = os.getenv('MODEL_PATH', './models/fine_tuned_bart')
+MAX_INPUT_LENGTH = int(os.getenv('MAX_INPUT_LENGTH', '1024'))
+MAX_SUMMARY_LENGTH = int(os.getenv('MAX_SUMMARY_LENGTH', '150'))
+MIN_SUMMARY_LENGTH = int(os.getenv('MIN_SUMMARY_LENGTH', '40'))
 
 app = Flask(__name__)
 
