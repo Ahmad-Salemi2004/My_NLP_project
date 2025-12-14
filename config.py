@@ -1,8 +1,3 @@
-"""
-config.py
-Configuration settings for the application.
-"""
-
 import os
 from dotenv import load_dotenv
 
