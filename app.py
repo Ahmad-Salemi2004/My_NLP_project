@@ -11,7 +11,9 @@ def load_model():
         device = 0 if torch.cuda.is_available() else -1
         model_path = "./models/fine_tuned_bart"
         
-        if os.path.exists(model_path):
+        # Check if model exists
+        if os.path.exists(model_path) and len(os.listdir(model_path)) > 0:
+            print("Loading fine-tuned model...")
             summarizer = pipeline(
                 "summarization", 
                 model=model_path, 
@@ -19,12 +21,14 @@ def load_model():
                 device=device
             )
         else:
+            print("Fine-tuned model not found. Loading base model...")
             summarizer = pipeline(
                 "summarization", 
                 model="facebook/bart-large-cnn", 
                 device=device
             )
         
+        print("Model loaded successfully!")
         return summarizer
     except Exception as e:
         print(f"Error loading model: {e}")
