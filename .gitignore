@@ -58,3 +58,7 @@ instance/
 # Temporary files
 tmp/
 temp/
+
+models/fine_tuned_bart/
+*.bin
+*.safetensors
