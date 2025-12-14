@@ -62,3 +62,57 @@ temp/
 models/fine_tuned_bart/
 *.bin
 *.safetensors
+
+# BART model directory
+models/fine_tuned_bart/
+
+# PyTorch model files
+*.bin
+*.pth
+*.pt
+*.safetensors
+
+# Hugging Face model files
+*pytorch_model*
+*tf_model*
+*model.safetensors*
+*.msgpack
+
+# Checkpoints and large files
+*.ckpt
+*.h5
+*.hdf5
+*.joblib
+*.npz
+
+# Model cache
+.cache/
+*__pycache__*/
+
+# Large data files
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.data*
+*.index
+
+# Environment and IDE files
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
